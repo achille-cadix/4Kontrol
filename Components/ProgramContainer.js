@@ -12,7 +12,8 @@ class ProgramContainer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            programsList: exampleList
+            programsList: exampleList,
+            brightness: 100
         }
     }
 
@@ -39,14 +40,12 @@ class ProgramContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            console.log(this.props.runningProgram)
             this.forceUpdate()
         })
     }
 
     _turnOffLed() {
         return fetch('http://192.168.1.29:8080/programs/off', { method: 'POST' }).then((response) => {
-            console.log(response)
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             this.forceUpdate()
@@ -68,7 +67,6 @@ class ProgramContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            console.log(this.props.runningProgram)
             this.forceUpdate()
         })
     }
@@ -102,34 +100,37 @@ class ProgramContainer extends React.Component {
 
     render() {
         return (
-            <View style={styles.main_container}>
-                <View style={styles.bottom_buttons}>
-                    <View style={styles.button_style}>
-                        <TouchableOpacity style={styles.stop_button} onPress={() => this._stopProgram()} >
-                            <Text>Arreter le programme</Text>
-                        </TouchableOpacity>
+            <View style={styles.main_container} >
+                <View style={styles.main_container}>
+                    <View style={styles.bottom_buttons}>
+                        <View style={styles.button_style}>
+                            <TouchableOpacity style={styles.stop_button} onPress={() => this._stopProgram()} >
+                                <Text>Arreter le programme</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.button_style}>
+                            <TouchableOpacity style={styles.off_button} onPress={() => this._turnOffLed()}>
+                                <Text>Eteindre les LEDs</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                    <View style={styles.button_style}>
-                        <TouchableOpacity style={styles.off_button} onPress={() => this._turnOffLed()}>
-                            <Text>Eteindre les LEDs</Text>
-                        </TouchableOpacity>
+                    <View style={styles.reload_container}>
+                        <Button title='recharger les programmes' onPress={() => { this._loadProgramsList() }} />
+                    </View>
+                    <View style={styles.programlist_container}>
+                        <ProgramList brightness={this.state.brightness} programs={this.state.programsList} />
+                    </View>
+                    <View style={styles.slider}>
+                        <Slider
+                            minimumValue={0}
+                            maximumValue={255}
+                            value={100}
+                            onValueChange={(value) => { this.setState({ brightness: parseInt(value) }) }} />
                     </View>
                 </View>
-                <View style={styles.reload_container}>
-                    <Button title='recharger les programmes' onPress={() => { this._loadProgramsList() }} />
-                </View>
-                <View style={styles.programlist_container}>
-                    <ProgramList programs={this.state.programsList} />
-                </View>
-                <View style={styles.slider}>
-                    <Slider
-                        minimumValue={0}
-                        maximumValue={255}
-                        onValueChange={()=>{}} />
-                </View>
-                <View style={styles.toaster}> 
-                    <Toast ref={(ref) => Toast.setRef(ref)} />
-                </View>
+
+                <Toast ref={(ref) => Toast.setRef(ref)} />
+
             </View>
         )
     }
@@ -139,7 +140,7 @@ class ProgramContainer extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        marginTop: 50
+        marginTop: 20
     },
     reload_container: {
         flex: 1,
@@ -178,12 +179,12 @@ const styles = StyleSheet.create({
     slider: {
         flex: 1,
         marginTop: 5,
-        borderWidth:2,
-        justifyContent:'center',
-        backgroundColor:'white'
+        borderWidth: 2,
+        justifyContent: 'center',
+        backgroundColor: 'white'
     },
-    toaster:{
-        marginTop:5
+    toaster: {
+        marginTop: 0
     }
 });
 

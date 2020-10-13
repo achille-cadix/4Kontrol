@@ -17,14 +17,14 @@ class ProgramItem extends React.Component {
     _launchProgram() {
         const actionToggle = { type: "TOGGLE_PROGRAM", value: this.props.program }
         this.props.dispatch(actionToggle)
-        let url = 'http://192.168.1.29:8080/program?name=' + this.props.program.replace('.py','')
+        let url = 'http://192.168.1.29:8080/program?name=' + this.props.program.replace('.py','') + '&brightness=' + this.props.brightness
         fetch(url, { method: 'POST'}).then((response)=>{
             Toast.show({
                 type: 'success',
                 visibilityTime: 3000,
                 autoHide: true,
                 position: 'bottom',
-                text1: 'Le programme ' + this.props.program.replace('.py','') + 'est lancé'
+                text1: 'Le programme ' + this.props.program.replace('.py','') + ' est lancé'
             });
         }).catch((error) => {
             Toast.show({

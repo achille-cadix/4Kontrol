@@ -13,8 +13,8 @@ class ProgramList extends React.Component {
         return (
             < FlatList style={styles.list_container}
                 data={this.props.programs}
-                keyExtractor={(item,index)=>'key'+index }
-                renderItem={({ item }) => (<ProgramItem program={item} />)}
+                keyExtractor={(item, index) => 'key' + index}
+                renderItem={({ item }) => (<ProgramItem brightness={this.props.brightness} program={item} />)}
             />)
     }
 
