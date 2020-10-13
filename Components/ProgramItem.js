@@ -17,8 +17,16 @@ class ProgramItem extends React.Component {
     _launchProgram() {
         const actionToggle = { type: "TOGGLE_PROGRAM", value: this.props.program }
         this.props.dispatch(actionToggle)
-        url = 'http://192.168.1.29:8080/program?name=' + this.props.program.replace('.py','')
-        fetch(url, { method: 'POST'}).catch((error) => {
+        let url = 'http://192.168.1.29:8080/program?name=' + this.props.program.replace('.py','')
+        fetch(url, { method: 'POST'}).then((response)=>{
+            Toast.show({
+                type: 'success',
+                visibilityTime: 3000,
+                autoHide: true,
+                position: 'bottom',
+                text1: 'Le programme ' + this.props.program.replace('.py','') + 'est lancé'
+            });
+        }).catch((error) => {
             Toast.show({
                 type: 'error',
                 visibilityTime: 3000,
@@ -47,7 +55,7 @@ class ProgramItem extends React.Component {
     render() {
         return (
             <View style={styles.main_container}>
-                <Text style={styles.program_name}>{this.props.program}</Text>
+                <Text style={styles.program_name}>{this.props.program.replace('.py','')}</Text>
                 <View style={styles.running_contaner}>
                     {this._displayRunning()}
                 </View>
