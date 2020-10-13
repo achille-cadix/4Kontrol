@@ -1,7 +1,7 @@
 // Helpers/ExampleList.js
 
 exampleList = [
-   'rastawipe','strandtest','strandtest2'
+   'rastawipe','strandtest','strandtest2','rainbow','rainbowCycle'
 ]
 
 export default exampleList

@@ -6,6 +6,7 @@ import { Button, StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import exampleList from '../Helpers/ExampleList';
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
+import Slider from '@react-native-community/slider';
 
 class ProgramContainer extends React.Component {
     constructor(props) {
@@ -16,7 +17,7 @@ class ProgramContainer extends React.Component {
     }
 
     _stopProgram() {
-        return fetch('http://192.168.1.29:8080/programs/stop', { method: 'POST' }).then((reponse) => {
+        return fetch('http://192.168.1.29:8080/program/stop', { method: 'POST' }).then((reponse) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             this.forceUpdate()
@@ -36,7 +37,7 @@ class ProgramContainer extends React.Component {
                 text1: 'Erreur : pas de réponse du serveur',
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
-            const actionStop = { type: "STOP_PROGRAM"}
+            const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             console.log(this.props.runningProgram)
             this.forceUpdate()
@@ -46,7 +47,7 @@ class ProgramContainer extends React.Component {
     _turnOffLed() {
         return fetch('http://192.168.1.29:8080/programs/off', { method: 'POST' }).then((response) => {
             console.log(response)
-            const actionStop = { type: "STOP_PROGRAM"}
+            const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             this.forceUpdate()
             Toast.show({
@@ -65,7 +66,7 @@ class ProgramContainer extends React.Component {
                 text1: 'Erreur : pas de réponse du serveur',
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
-            const actionStop = { type: "STOP_PROGRAM"}
+            const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             console.log(this.props.runningProgram)
             this.forceUpdate()
@@ -120,7 +121,13 @@ class ProgramContainer extends React.Component {
                 <View style={styles.programlist_container}>
                     <ProgramList programs={this.state.programsList} />
                 </View>
-                <View>
+                <View style={styles.slider}>
+                    <Slider
+                        minimumValue={0}
+                        maximumValue={255}
+                        onValueChange={()=>{}} />
+                </View>
+                <View style={styles.toaster}> 
                     <Toast ref={(ref) => Toast.setRef(ref)} />
                 </View>
             </View>
@@ -167,6 +174,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'red',
         padding: 10
+    },
+    slider: {
+        flex: 1,
+        marginTop: 5,
+        borderWidth:2,
+        justifyContent:'center',
+        backgroundColor:'white'
+    },
+    toaster:{
+        marginTop:5
     }
 });
 
