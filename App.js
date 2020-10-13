@@ -3,13 +3,12 @@ import React from 'react';
 import { StyleSheet, ActivityIndicator, View } from 'react-native';
 import { Provider } from 'react-redux';
 import Store from './Store/configureStore';
-import ProgramContainer from './Components/ProgramContainer';
-
+import Navigation from './Navigation/Navigation';
 
 export default function App() {
   return (
     <Provider store={Store} style={styles.container}>
-      <ProgramContainer/>
+      <Navigation />
       <StatusBar style="auto" />
     </Provider>
   );

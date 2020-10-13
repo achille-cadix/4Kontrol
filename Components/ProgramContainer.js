@@ -12,7 +12,7 @@ class ProgramContainer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            programsList: exampleList,
+            programsList: [],
             brightness: 100
         }
     }
@@ -78,7 +78,7 @@ class ProgramContainer extends React.Component {
             })
             Toast.show({
                 type: 'success',
-                visibilityTime: 2500,
+                visibilityTime: 1000,
                 autoHide: true,
                 position: 'bottom',
                 text1: 'Chargement des programmes effectué'
@@ -96,6 +96,10 @@ class ProgramContainer extends React.Component {
             this.props.dispatch(actionStop)
             this.forceUpdate()
         })
+    }
+
+    componentDidMount(){
+        this._loadProgramsList()
     }
 
     render() {
@@ -128,9 +132,7 @@ class ProgramContainer extends React.Component {
                             onValueChange={(value) => { this.setState({ brightness: parseInt(value) }) }} />
                     </View>
                 </View>
-
                 <Toast ref={(ref) => Toast.setRef(ref)} />
-
             </View>
         )
     }
@@ -140,7 +142,8 @@ class ProgramContainer extends React.Component {
 const styles = StyleSheet.create({
     main_container: {
         flex: 1,
-        marginTop: 20
+        marginTop: 5,
+        marginBottom:5
     },
     reload_container: {
         flex: 1,
@@ -179,12 +182,11 @@ const styles = StyleSheet.create({
     slider: {
         flex: 1,
         marginTop: 5,
+        marginLeft:5,
+        marginRight:5,
         borderWidth: 2,
         justifyContent: 'center',
         backgroundColor: 'white'
-    },
-    toaster: {
-        marginTop: 0
     }
 });
 
