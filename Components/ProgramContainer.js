@@ -8,9 +8,9 @@ import Slider from '@react-native-community/slider';
 import ProgramItem from './ProgramItem'
 import axios from 'axios';
 
-const client=axios.create({
-    baseURL:'http://192.168.1.29:8080',
-    timeout:1000
+const client = axios.create({
+    baseURL: 'http://192.168.1.29:8080',
+    timeout: 1000
 })
 
 class ProgramContainer extends React.Component {
@@ -26,7 +26,6 @@ class ProgramContainer extends React.Component {
         return client.post('/program/stop').then((reponse) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
             Toast.show({
                 type: 'success',
                 visibilityTime: 2000,
@@ -45,7 +44,6 @@ class ProgramContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -53,7 +51,6 @@ class ProgramContainer extends React.Component {
         return client.post('/programs/off').then((response) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
             Toast.show({
                 type: 'success',
                 visibilityTime: 2000,
@@ -72,7 +69,6 @@ class ProgramContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -88,7 +84,10 @@ class ProgramContainer extends React.Component {
                 position: 'bottom',
                 text1: 'Chargement des programmes effectué'
             });
+            const update_programs = { type: "UPDATE_PROGRAMS", value: this.state.programsList }
+            this.props.dispatch(update_programs)
         }).catch((error) => {
+            console.error(error)
             Toast.show({
                 type: 'error',
                 visibilityTime: 3000,
@@ -97,9 +96,6 @@ class ProgramContainer extends React.Component {
                 text1: 'Erreur : pas de réponse du serveur',
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
-            const actionStop = { type: "STOP_PROGRAM", value: this.props.program.name }
-            this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -204,7 +200,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        runningProgram: state.runningProgram
+        runningProgram: state.runningProgram,
+        programsGlobalList:state.programsGlobalList
     }
 }
 

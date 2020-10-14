@@ -1,6 +1,6 @@
 // Store/Reducers/ProgramReducer.js
 
-const initialState = { runningProgram: null }
+const initialState = { runningProgram: null,programsGlobalList:[] }
 
 function ProgramReducer(state = initialState, action) {
   let nextState
@@ -24,6 +24,12 @@ function ProgramReducer(state = initialState, action) {
         runningProgram: null
       }
       return nextState
+      case 'UPDATE_PROGRAMS':
+        nextState={
+          ...state,
+          programsGlobalList:action.value
+        }
+        return nextState
     default:
       return state
   }

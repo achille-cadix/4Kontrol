@@ -3,9 +3,26 @@
 import React from 'react';
 import { StyleSheet, Image } from 'react-native';
 import { createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import ProgramContainer from '../Components/ProgramContainer';
 import PlaylistContainer from '../Components/PlaylistContainer'
+import CreatePlaylist from '../Components/CreatePlaylist';
+
+const PlaylistNavigator = createStackNavigator({
+    PlaylistContainer: {
+      screen: PlaylistContainer,
+       navigationOptions:{
+        headerShown: false
+       }
+    },
+    CreatePlaylist: {
+      screen: CreatePlaylist,
+      navigationOptions: {
+        title: 'Creez votre playlist'
+      }
+    }
+  })
 
 const TabNavigator = createBottomTabNavigator({
     Program: {
@@ -20,7 +37,7 @@ const TabNavigator = createBottomTabNavigator({
         }
     },
     Playlists: {
-        screen: PlaylistContainer,
+        screen: PlaylistNavigator,
         navigationOptions: {
             title: 'Playlists',
             tabBarIcon: () => {

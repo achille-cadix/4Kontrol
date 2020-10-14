@@ -37,7 +37,6 @@ class ProgramItem extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM", value: this.props.program }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -98,7 +97,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        runningProgram: state.runningProgram
+        runningProgram: state.runningProgram,
+        programsGlobalList:state.programsGlobalList
     }
 }
 

@@ -1,7 +1,6 @@
 // Components/ProgramContainer.js
 
 import React from 'react';
-import ProgramItem from './ProgramItem';
 import { Button, StyleSheet, View, TouchableOpacity, Text, FlatList } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
@@ -9,9 +8,9 @@ import Slider from '@react-native-community/slider';
 import axios from 'axios';
 import PlaylistItem from './PlaylistItem';
 
-const client=axios.create({
-    baseURL:'http://192.168.1.29:8080',
-    timeout:1000
+const client = axios.create({
+    baseURL: 'http://192.168.1.29:8080',
+    timeout: 1000
 })
 
 class PlaylistContainer extends React.Component {
@@ -23,11 +22,14 @@ class PlaylistContainer extends React.Component {
         }
     }
 
+    _createNewPlaylist = () => {
+        this.props.navigation.navigate("CreatePlaylist")
+    }
+
     _stopProgram() {
         return client.post('/program/stop').then((reponse) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
             Toast.show({
                 type: 'success',
                 visibilityTime: 2000,
@@ -46,7 +48,6 @@ class PlaylistContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -54,7 +55,6 @@ class PlaylistContainer extends React.Component {
         return client.post('/programs/off').then((response) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
             Toast.show({
                 type: 'success',
                 visibilityTime: 2000,
@@ -73,11 +73,10 @@ class PlaylistContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
-    _loadPlaylistsList() {
+    _loadPlaylistsList=()=> {
         return client.get('/playlists').then((response) => response.data).then((data) => {
             this.setState({
                 playlistsList: data
@@ -100,7 +99,6 @@ class PlaylistContainer extends React.Component {
             });
             const actionStop = { type: "STOP_PROGRAM", value: this.props.program.name }
             this.props.dispatch(actionStop)
-            this.forceUpdate()
         })
     }
 
@@ -124,14 +122,17 @@ class PlaylistContainer extends React.Component {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={styles.reload_container}>
-                        <Button title='recharger les playlists' onPress={() => { this._loadPlaylistsList() }} />
+                    <View style={styles.top_buttons_container}>
+                        <View style={styles.button_separator}>
+                            <Button title='recharger les playlists' onPress={() => { this._loadPlaylistsList() }} />
+                        </View>
+                        <Button title='Creer une nouvelle playlist' color='green' onPress={() => { this._createNewPlaylist() }} />
                     </View>
                     <View style={styles.programlist_container}>
                         < FlatList style={styles.list_container}
                             data={Object.keys(this.state.playlistsList)}
                             keyExtractor={(item, index) => 'key' + index}
-                            renderItem={({ item }) => (<PlaylistItem client={client} brightness={this.state.brightness} playlist={item} programsInPlaylist={this.state.playlistsList[item]} />)}
+                            renderItem={({ item }) => (<PlaylistItem refreshFunction={this._loadPlaylistsList} client={client} brightness={this.state.brightness} playlist={item} programsInPlaylist={this.state.playlistsList[item]} />)}
                         />
                     </View>
                     <View style={styles.slider}>
@@ -155,10 +156,14 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 5
     },
-    reload_container: {
-        flex: 1,
+    top_buttons_container: {
+        flex: 2,
         marginLeft: 10,
-        marginRight: 10
+        marginRight: 10,
+        justifyContent: 'center'
+    },
+    button_separator: {
+        marginBottom: 5
     },
     programlist_container: {
         flex: 10,
@@ -208,5 +213,6 @@ const mapStateToProps = (state) => {
         runningProgram: state.runningProgram
     }
 }
+
 
 export default connect(mapStateToProps)(PlaylistContainer)
