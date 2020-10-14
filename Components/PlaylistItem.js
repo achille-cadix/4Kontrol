@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, Button, ActivityIndicator } from 'react-native'
 import { connect } from 'react-redux';
 import Toast from 'react-native-toast-message';
 
-class ProgramItem extends React.Component {
+class PlaylistItem extends React.Component {
 
     constructor(props) {
         super(props)
@@ -14,17 +14,18 @@ class ProgramItem extends React.Component {
         }
     }
 
-    _launchProgram() {
-        const actionToggle = { type: "TOGGLE_PROGRAM", value: this.props.program }
+    _launchPlaylist() {
+        const actionToggle = { type: "TOGGLE_PROGRAM", value: this.props.playlist }
         this.props.dispatch(actionToggle)
-        let url = '/program?name=' + this.props.program.replace('.py', '') + '&brightness=' + this.props.brightness
+        let url = '/playlists/' + this.props.playlist + '/run?brightness=' + this.props.brightness + '&duration=5'
+        console.log(url)
         this.props.client.post(url).then((response) => {
             Toast.show({
                 type: 'success',
                 visibilityTime: 3000,
                 autoHide: true,
                 position: 'bottom',
-                text1: 'Le programme ' + this.props.program.replace('.py', '') + ' est lancé'
+                text1: 'La playlist ' + this.props.playlist + ' est lancée'
             });
         }).catch((error) => {
             Toast.show({
@@ -35,14 +36,14 @@ class ProgramItem extends React.Component {
                 text1: 'Erreur : pas de réponse du serveur',
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
-            const actionStop = { type: "STOP_PROGRAM", value: this.props.program }
+            const actionStop = { type: "STOP_PROGRAM", value: this.props.playlist }
             this.props.dispatch(actionStop)
             this.forceUpdate()
         })
     }
 
     _displayRunning() {
-        if (this.props.runningProgram === this.props.program) {
+        if (this.props.runningProgram === this.props.playlist) {
             return (
                 <View style={styles.loading_container}>
                     <ActivityIndicator size='large' color='blue' />
@@ -51,16 +52,27 @@ class ProgramItem extends React.Component {
         }
     }
 
+    _modifyPlaylist(){
+        console.log(this.props.programsInPlaylist)
+    }
+
     render() {
+        console.log(this.props.programsInPlaylist)
         return (
             <View style={styles.main_container}>
-                <Text style={styles.program_name}>{this.props.program.replace('.py', '')}</Text>
+                <Text style={styles.program_name}>{this.props.playlist}</Text>
                 <View style={styles.running_contaner}>
                     {this._displayRunning()}
                 </View>
                 <View style={styles.button_container} >
-                    <Button title="Lancer l'animation" onPress={() => { this._launchProgram() }} />
+                    <View style={styles.small_buttons}>
+                        <Button title="Lancer" onPress={() => { this._launchPlaylist() }} />
+                    </View>
+                    <View style={styles.small_buttons}>
+                        <Button title="Modifier" color='green' onPress={() => { this._modifyPlaylist() }} />
+                    </View>
                 </View>
+
             </View>
         )
     }
@@ -92,7 +104,12 @@ const styles = StyleSheet.create({
         flex: 5,
         marginRight: 10,
         width: 30,
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flexDirection: 'column'
+    },
+    small_buttons: {
+        flex:1,
+        justifyContent:'center'
     }
 })
 
@@ -102,4 +119,4 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps)(ProgramItem)
+export default connect(mapStateToProps)(PlaylistItem)

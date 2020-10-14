@@ -1,12 +1,17 @@
 // Components/ProgramContainer.js
 
 import React from 'react';
-import ProgramList from './ProgramList';
-import { Button, StyleSheet, View, TouchableOpacity, Text } from 'react-native';
-import exampleList from '../Helpers/ExampleList';
+import { Button, StyleSheet, View, TouchableOpacity, Text, FlatList } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
 import Slider from '@react-native-community/slider';
+import ProgramItem from './ProgramItem'
+import axios from 'axios';
+
+const client=axios.create({
+    baseURL:'http://192.168.1.29:8080',
+    timeout:1000
+})
 
 class ProgramContainer extends React.Component {
     constructor(props) {
@@ -18,7 +23,7 @@ class ProgramContainer extends React.Component {
     }
 
     _stopProgram() {
-        return fetch('http://192.168.1.29:8080/program/stop', { method: 'POST' }).then((reponse) => {
+        return client.post('/program/stop').then((reponse) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             this.forceUpdate()
@@ -45,7 +50,7 @@ class ProgramContainer extends React.Component {
     }
 
     _turnOffLed() {
-        return fetch('http://192.168.1.29:8080/programs/off', { method: 'POST' }).then((response) => {
+        return client.post('/programs/off').then((response) => {
             const actionStop = { type: "STOP_PROGRAM" }
             this.props.dispatch(actionStop)
             this.forceUpdate()
@@ -72,7 +77,7 @@ class ProgramContainer extends React.Component {
     }
 
     _loadProgramsList() {
-        return fetch('http://192.168.1.29:8080/programs', { method: 'GET' }).then((response) => response.json()).then((data) => {
+        return client.get('/programs').then((response) => response.data).then((data) => {
             this.setState({
                 programsList: data
             })
@@ -98,7 +103,7 @@ class ProgramContainer extends React.Component {
         })
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this._loadProgramsList()
     }
 
@@ -122,7 +127,11 @@ class ProgramContainer extends React.Component {
                         <Button title='recharger les programmes' onPress={() => { this._loadProgramsList() }} />
                     </View>
                     <View style={styles.programlist_container}>
-                        <ProgramList brightness={this.state.brightness} programs={this.state.programsList} />
+                        < FlatList style={styles.list_container}
+                            data={this.state.programsList}
+                            keyExtractor={(item, index) => 'key' + index}
+                            renderItem={({ item }) => (<ProgramItem client={client} brightness={this.state.brightness} program={item} />)}
+                        />
                     </View>
                     <View style={styles.slider}>
                         <Slider
@@ -143,7 +152,7 @@ const styles = StyleSheet.create({
     main_container: {
         flex: 1,
         marginTop: 5,
-        marginBottom:5
+        marginBottom: 5
     },
     reload_container: {
         flex: 1,
@@ -182,11 +191,14 @@ const styles = StyleSheet.create({
     slider: {
         flex: 1,
         marginTop: 5,
-        marginLeft:5,
-        marginRight:5,
+        marginLeft: 5,
+        marginRight: 5,
         borderWidth: 2,
         justifyContent: 'center',
         backgroundColor: 'white'
+    },
+    list_container: {
+        marginLeft: 10
     }
 });
 
