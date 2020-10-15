@@ -8,21 +8,28 @@ import { createBottomTabNavigator } from 'react-navigation-tabs';
 import ProgramContainer from '../Components/ProgramContainer';
 import PlaylistContainer from '../Components/PlaylistContainer'
 import CreatePlaylist from '../Components/CreatePlaylist';
+import ModifyPlaylist from '../Components/ModifyPlaylist';
 
 const PlaylistNavigator = createStackNavigator({
     PlaylistContainer: {
-      screen: PlaylistContainer,
-       navigationOptions:{
-        headerShown: false
-       }
+        screen: PlaylistContainer,
+        navigationOptions: {
+            headerShown: false
+        }
     },
     CreatePlaylist: {
-      screen: CreatePlaylist,
-      navigationOptions: {
-        title: 'Creez votre playlist'
-      }
+        screen: CreatePlaylist,
+        navigationOptions: {
+            title: 'Creez votre playlist'
+        }
+    },
+    ModifyPlaylist: {
+        screen: ModifyPlaylist,
+        navigationOptions: {
+            title: 'Modifier la playlist'
+        }
     }
-  })
+})
 
 const TabNavigator = createBottomTabNavigator({
     Program: {

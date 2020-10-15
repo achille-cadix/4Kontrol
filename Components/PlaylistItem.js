@@ -40,7 +40,7 @@ class PlaylistItem extends React.Component {
         })
     }
 
-    _deletePlaylist(){
+    _deletePlaylist() {
         let url = '/playlists/' + this.props.playlist
         this.props.client.delete(url).then((response) => {
             Toast.show({
@@ -75,7 +75,9 @@ class PlaylistItem extends React.Component {
         }
     }
 
-    _modifyPlaylist(){
+    _modifyPlaylist() {
+        this.props.navigation.navigate("ModifyPlaylist",
+        {playlistName:this.props.playlist,programsList:this.props.programsInPlaylist})
     }
 
     render() {
@@ -87,7 +89,7 @@ class PlaylistItem extends React.Component {
                 </View>
                 <View style={styles.button_container} >
                     <View style={styles.small_buttons}>
-                    <Button title="Modifier" color='green' onPress={() => { this._modifyPlaylist() }} />
+                        <Button title="Modifier" color='green' onPress={() => { this._modifyPlaylist() }} />
                     </View>
                     <View style={styles.small_buttons}>
                         <Button title="supprimer" color='red' onPress={() => { this._deletePlaylist() }} />
@@ -128,8 +130,8 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     small_buttons: {
-        flex:1,
-        justifyContent:'center'
+        flex: 1,
+        justifyContent: 'center'
     }
 })
 

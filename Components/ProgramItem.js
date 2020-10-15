@@ -1,7 +1,7 @@
 // Components/ProgramItem.js
 
 import React from 'react'
-import { StyleSheet, View, Text, Button, ActivityIndicator } from 'react-native'
+import { StyleSheet, View, Text, Button, ActivityIndicator, TouchableOpacity } from 'react-native'
 import { connect } from 'react-redux';
 import Toast from 'react-native-toast-message';
 
@@ -52,7 +52,7 @@ class ProgramItem extends React.Component {
 
     render() {
         return (
-            <View style={styles.main_container}>
+            <TouchableOpacity style={styles.main_container} onPress={() => { this._launchProgram() }}>
                 <Text style={styles.program_name}>{this.props.program.replace('.py', '')}</Text>
                 <View style={styles.running_contaner}>
                     {this._displayRunning()}
@@ -60,7 +60,7 @@ class ProgramItem extends React.Component {
                 <View style={styles.button_container} >
                     <Button title="Lancer l'animation" onPress={() => { this._launchProgram() }} />
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
 }

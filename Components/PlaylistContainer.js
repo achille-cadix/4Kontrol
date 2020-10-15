@@ -1,12 +1,13 @@
 // Components/ProgramContainer.js
 
 import React from 'react';
-import { Button, StyleSheet, View, TouchableOpacity, Text, FlatList } from 'react-native';
+import { Button, StyleSheet, View, TouchableOpacity, Text, FlatList, RefreshControl } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
 import Slider from '@react-native-community/slider';
 import axios from 'axios';
 import PlaylistItem from './PlaylistItem';
+import playlistExamples from '../Helpers/ExamplePlaylists';
 
 const client = axios.create({
     baseURL: 'http://192.168.1.29:8080',
@@ -18,7 +19,8 @@ class PlaylistContainer extends React.Component {
         super(props)
         this.state = {
             playlistsList: [],
-            brightness: 100
+            brightness: 100,
+            refreshingData: true
         }
     }
 
@@ -76,10 +78,11 @@ class PlaylistContainer extends React.Component {
         })
     }
 
-    _loadPlaylistsList=()=> {
+    _loadPlaylistsList = () => {
         return client.get('/playlists').then((response) => response.data).then((data) => {
             this.setState({
-                playlistsList: data
+                playlistsList: data,
+                refreshingData:false
             })
             Toast.show({
                 type: 'success',
@@ -97,6 +100,9 @@ class PlaylistContainer extends React.Component {
                 text1: 'Erreur : pas de réponse du serveur',
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
+            this.setState({
+                refreshingData:false
+            })
             const actionStop = { type: "STOP_PROGRAM", value: this.props.program.name }
             this.props.dispatch(actionStop)
         })
@@ -110,7 +116,7 @@ class PlaylistContainer extends React.Component {
         return (
             <View style={styles.main_container} >
                 <View style={styles.main_container}>
-                    <View style={styles.bottom_buttons}>
+                    <View style={styles.top_buttons}>
                         <View style={styles.button_style}>
                             <TouchableOpacity style={styles.stop_button} onPress={() => this._stopProgram()} >
                                 <Text>Arreter le programme</Text>
@@ -123,16 +129,21 @@ class PlaylistContainer extends React.Component {
                         </View>
                     </View>
                     <View style={styles.top_buttons_container}>
-                        <View style={styles.button_separator}>
-                            <Button title='recharger les playlists' onPress={() => { this._loadPlaylistsList() }} />
-                        </View>
                         <Button title='Creer une nouvelle playlist' color='green' onPress={() => { this._createNewPlaylist() }} />
                     </View>
                     <View style={styles.programlist_container}>
                         < FlatList style={styles.list_container}
+                            refreshControl={<RefreshControl refreshing={this.state.refreshingData} onRefresh={() => { this._loadPlaylistsList() }} />}
                             data={Object.keys(this.state.playlistsList)}
                             keyExtractor={(item, index) => 'key' + index}
-                            renderItem={({ item }) => (<PlaylistItem refreshFunction={this._loadPlaylistsList} client={client} brightness={this.state.brightness} playlist={item} programsInPlaylist={this.state.playlistsList[item]} />)}
+                            renderItem={({ item }) => (
+                                <PlaylistItem
+                                    refreshFunction={this._loadPlaylistsList}
+                                    navigation={this.props.navigation}
+                                    client={client}
+                                    brightness={this.state.brightness}
+                                    playlist={item} 
+                                    programsInPlaylist={this.state.playlistsList[item]} />)}
                         />
                     </View>
                     <View style={styles.slider}>
@@ -157,31 +168,29 @@ const styles = StyleSheet.create({
         marginBottom: 5
     },
     top_buttons_container: {
-        flex: 2,
+        flex: 1,
         marginLeft: 10,
         marginRight: 10,
+        marginTop: 10,
         justifyContent: 'center'
-    },
-    button_separator: {
-        marginBottom: 5
     },
     programlist_container: {
         flex: 10,
         backgroundColor: '#fff'
     },
-    bottom_buttons: {
+    top_buttons: {
         flex: 1,
         flexDirection: 'row',
         marginLeft: 5,
         marginRight: 5,
-        marginTop: 10,
+        marginTop: 15,
         marginBottom: 10
     },
     button_style: {
         flex: 1,
         marginLeft: 5,
         marginRight: 5,
-        marginTop: 10,
+        marginTop: 20,
         marginBottom: 10
     },
     stop_button: {

@@ -90,13 +90,12 @@ class CreatePlaylist extends React.Component {
     _renderRow(data) {
         return (
             <View>
-                <ListItem style={styles.program_container}>
+                <ListItem style={styles.program_container} onPress={() => { this._selectItem(data) }}>
                     <ListItem.Content>
                         <ListItem.Title>{data}</ListItem.Title>
                     </ListItem.Content>
                     <ListItem.CheckBox
                         checked={this.state.checkedItems.includes(data)}
-                        onPress={() => { this._selectItem(data) }}
                     />
                 </ListItem>
             </View>
