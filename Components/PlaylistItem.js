@@ -17,7 +17,7 @@ class PlaylistItem extends React.Component {
     _launchPlaylist() {
         const actionToggle = { type: "TOGGLE_PROGRAM", value: this.props.playlist }
         this.props.dispatch(actionToggle)
-        let url = '/playlists/' + this.props.playlist + '/run?brightness=' + this.props.brightness + '&duration=5'
+        let url = '/playlists/' + this.props.playlist + '/run?brightness=' + this.props.brightness + '&duration=20'
         this.props.client.post(url).then((response) => {
             Toast.show({
                 type: 'success',
