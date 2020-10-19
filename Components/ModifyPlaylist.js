@@ -5,7 +5,7 @@ import { Button, StyleSheet, View, TouchableOpacity, Text, Easing, Animated, Log
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
 import axios from 'axios';
-import SortableList from 'react-native-sortable-list';
+import DraggableFlatList from "react-native-draggable-flatlist";
 
 LogBox.ignoreLogs(['Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`']);
 
@@ -17,30 +17,6 @@ class Row extends React.Component {
             active: false,
             disabledButton: false
         }
-        this._active = new Animated.Value(0);
-
-        this._style = {
-            transform: [{
-                scale: this._active.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [1, 1.07],
-                }),
-            }],
-            elevation: this._active.interpolate({
-                inputRange: [0, 1],
-                outputRange: [2, 6],
-            }),
-        }
-    }
-
-    UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.active !== nextProps.active) {
-            Animated.timing(this._active, {
-                duration: 300,
-                easing: Easing.bounce,
-                toValue: Number(nextProps.active),
-            }).start();
-        }
     }
 
     _handleDelete(program) {
@@ -51,58 +27,39 @@ class Row extends React.Component {
     }
 
     render() {
-        const { data, active, _handlePress } = this.props;
         return (
-            <Animated.View style={[
-                styles.row,
-                this._style,
-            ]}>
-                <Text style={styles.rowText}>
-                    {data}
+            <TouchableOpacity
+                style={styles.row}
+                onLongPress={this.props.drag}
+                delayLongPress={200}
+            >
+                <Text style={styles.rowText} >
+                    {this.props.programName.replace('.py', '')}
                 </Text>
-                <Button title="supprimer" color="red" style={styles.rowButton} disabled={this.state.disabledButton} onPress={() => { this._handleDelete(data) }} />
-            </Animated.View>
+                <Button title="supprimer" color="red" style={styles.rowButton} disabled={this.state.disabledButton} onPress={() => { this._handleDelete(this.props.programName) }} />
+            </TouchableOpacity>
         );
-    }
+    };
 }
 
+
 class ModifyPlaylist extends React.Component {
+
     constructor(props) {
         super(props)
         this.state = {
             playlistName: this.props.navigation.state.params.playlistName,
             programsList: this.props.navigation.state.params.programsList,
             programsOrder: [],
-            toDeleteList: [],
-            scrollEnable: true
+            toDeleteList:[]
         }
-    }
-
-    _renderRow = ({ data, active }) => {
-        return (
-            <Row data={data} active={active} deleteFunction={this._deleteProgram} />
-        )
-    }
-
-    _deleteProgram = (programToDelete) => {
-        let newToDelete = this.state.toDeleteList.slice()
-        newToDelete.push(programToDelete)
-        this.setState({
-            toDeleteList: newToDelete
-        })
     }
 
     _updatePlaylist() {
         let url = 'http://192.168.1.29:8080/playlists/' + this.state.playlistName
-        let reorderedPlaylist
-        if (this.state.programsOrder.length != 0) {
-            reorderedPlaylist = this.state.programsOrder.map(i => this.state.programsList[i])
-        }
-        else {
-            reorderedPlaylist = this.state.programsList.slice()
-        }
-        reorderedPlaylist = reorderedPlaylist.filter(x => !this.state.toDeleteList.includes(x)) // A vérifier
-        let body = { "name": this.state.playlistName, "programs": reorderedPlaylist }
+        let newPlaylist = this.state.programsList.filter(x => !this.state.toDeleteList.includes(x)) 
+        let body = { "name": this.state.playlistName, "programs": newPlaylist }
+        console.log(body)
         return axios({
             method: 'put',
             url: url,
@@ -131,25 +88,42 @@ class ModifyPlaylist extends React.Component {
         })
     }
 
+
+    _deleteProgram = (programToDelete) => {
+        console.log(programToDelete)
+        let newToDelete = this.state.toDeleteList.slice()
+        newToDelete.push(programToDelete)
+        this.setState({
+            toDeleteList: newToDelete
+        })
+    }
+
+    renderItem=({ item, index, drag, isActive })=> {
+        return (
+            <Row
+                programName={item}
+                index={index}
+                drag={drag}
+                deleteFunction={this._deleteProgram}
+            />
+        )
+    }
+
     render() {
         return (
             <View style={styles.main_container}>
-                <View style={styles.programs_list}>
-                    <SortableList
-                        data={this.state.programsList}
-                        keyExtractor={(item, index) => 'key' + index}
-                        renderRow={this._renderRow}
-                        scrollEnabled={this.state.scrollEnable}
-                        onActivateRow={(key) => { this.setState({ scrollEnable: false }) }}
-                        onReleaseRow={(key, nextOrder) => { this.setState({ scrollEnable: true }) }}
-                        onChangeOrder={(nextOrder) => { this.setState({ programsOrder: nextOrder }) }}
-                    />
-                </View>
+                <DraggableFlatList
+                    style={styles.programs_list}
+                    data={this.state.programsList}
+                    renderItem={this.renderItem}
+                    keyExtractor={(item, index) => `draggable-item-${item}`}
+                    onDragEnd={({ data }) => { this.setState({ programsList: data }) }}
+                />
                 <View style={styles.validate_button_container}>
                     <Button title="valider la playlist" color="green" onPress={() => { this._updatePlaylist() }} />
                 </View>
             </View>
-        )
+        );
     }
 }
 
@@ -159,15 +133,17 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: 10,
         marginLeft: 10,
-        marginRight: 10
+        marginRight: 10,
+        marginBottom: 10,
+        flexDirection: 'column'
     },
     programs_list: {
         marginBottom: 5,
         flex: 10
     },
     validate_button_container: {
-        flex: 1,
-        marginTop: 5
+        marginTop: 5,
+        marginBottom: 5,
     },
     row: {
         flexDirection: 'row',
@@ -194,8 +170,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         runningProgram: state.runningProgram,
-        programsGlobalList:state.programsGlobalList,
-        playlistsGlobalList:state.playlistsGlobalList
+        programsGlobalList: state.programsGlobalList,
+        playlistsGlobalList: state.playlistsGlobalList
     }
 }
 
