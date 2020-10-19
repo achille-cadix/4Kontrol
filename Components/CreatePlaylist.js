@@ -96,6 +96,7 @@ class CreatePlaylist extends React.Component {
                     </ListItem.Content>
                     <ListItem.CheckBox
                         checked={this.state.checkedItems.includes(data)}
+                        onPress={() => { this._selectItem(data) }}
                     />
                 </ListItem>
             </View>
@@ -120,6 +121,7 @@ class CreatePlaylist extends React.Component {
                 position: 'bottom',
                 text1: 'La playlist a été créée'
             });
+            this.props.navigation.state.params.refreshPlaylists()
             this.props.navigation.navigate("PlaylistContainer")
         }).catch((error) => {
             Toast.show({
@@ -180,7 +182,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         runningProgram: state.runningProgram,
-        programsGlobalList: state.programsGlobalList
+        programsGlobalList: state.programsGlobalList,
+        playlistsGlobalList: state.playlistsGlobalList
     }
 }
 

@@ -58,7 +58,7 @@ class ProgramItem extends React.Component {
                     {this._displayRunning()}
                 </View>
                 <View style={styles.button_container} >
-                    <Button title="Lancer l'animation" onPress={() => { this._launchProgram() }} />
+                    <Button title="Ajouter à une playlist" onPress={() => { this.props.refreshFunction();this.props.navigation.navigate("AddToPlaylist",{program:this.props.program, refreshFunction:this.props.refreshFunction , playlists:this.props.playlists}) }} />
                 </View>
             </TouchableOpacity>
         )
@@ -98,7 +98,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         runningProgram: state.runningProgram,
-        programsGlobalList:state.programsGlobalList
+        programsGlobalList:state.programsGlobalList,
+        playlistsGlobalList:state.playlistsGlobalList
     }
 }
 

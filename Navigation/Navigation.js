@@ -9,6 +9,22 @@ import ProgramContainer from '../Components/ProgramContainer';
 import PlaylistContainer from '../Components/PlaylistContainer'
 import CreatePlaylist from '../Components/CreatePlaylist';
 import ModifyPlaylist from '../Components/ModifyPlaylist';
+import AddToPlaylist from '../Components/AddToPlaylist';
+
+const ProgramNavigator = createStackNavigator({
+    ProgramContainer: {
+        screen: ProgramContainer,
+        navigationOptions: {
+            headerShown: false
+        }
+    },
+    AddToPlaylist: {
+        screen: AddToPlaylist,
+        navigationOptions: {
+            title: 'Ajouter à une playlist'
+        }
+    }
+})
 
 const PlaylistNavigator = createStackNavigator({
     PlaylistContainer: {
@@ -17,23 +33,23 @@ const PlaylistNavigator = createStackNavigator({
             headerShown: false
         }
     },
-    CreatePlaylist: {
-        screen: CreatePlaylist,
-        navigationOptions: {
-            title: 'Creez votre playlist'
-        }
-    },
     ModifyPlaylist: {
         screen: ModifyPlaylist,
         navigationOptions: {
             title: 'Modifier la playlist'
+        }
+    },
+    CreatePlaylist: {
+        screen: CreatePlaylist,
+        navigationOptions: {
+            title: 'Creez votre playlist'
         }
     }
 })
 
 const TabNavigator = createBottomTabNavigator({
     Program: {
-        screen: ProgramContainer,
+        screen: ProgramNavigator,
         navigationOptions: {
             title: 'Programmes',
             tabBarIcon: () => {

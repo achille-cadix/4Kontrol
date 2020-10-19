@@ -77,7 +77,7 @@ class PlaylistItem extends React.Component {
 
     _modifyPlaylist() {
         this.props.navigation.navigate("ModifyPlaylist",
-        {playlistName:this.props.playlist,programsList:this.props.programsInPlaylist})
+        {playlistName:this.props.playlist,programsList:this.props.programsInPlaylist,refreshFunction:this.props.refreshFunction})
     }
 
     render() {

@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import Slider from '@react-native-community/slider';
 import axios from 'axios';
 import PlaylistItem from './PlaylistItem';
-import playlistExamples from '../Helpers/ExamplePlaylists';
 
 const client = axios.create({
     baseURL: 'http://192.168.1.29:8080',
@@ -25,7 +24,7 @@ class PlaylistContainer extends React.Component {
     }
 
     _createNewPlaylist = () => {
-        this.props.navigation.navigate("CreatePlaylist")
+        this.props.navigation.navigate("CreatePlaylist", { refreshPlaylists: this._loadPlaylistsList })
     }
 
     _stopProgram() {
@@ -82,7 +81,7 @@ class PlaylistContainer extends React.Component {
         return client.get('/playlists').then((response) => response.data).then((data) => {
             this.setState({
                 playlistsList: data,
-                refreshingData:false
+                refreshingData: false
             })
             Toast.show({
                 type: 'success',
@@ -91,6 +90,8 @@ class PlaylistContainer extends React.Component {
                 position: 'bottom',
                 text1: 'Chargement des playlists effectué'
             });
+            const update_playlists = { type: "UPDATE_PLAYLISTS", value: this.state.playlistsList }
+            this.props.dispatch(update_playlists)
         }).catch((error) => {
             Toast.show({
                 type: 'error',
@@ -101,7 +102,7 @@ class PlaylistContainer extends React.Component {
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
             this.setState({
-                refreshingData:false
+                refreshingData: false
             })
             const actionStop = { type: "STOP_PROGRAM", value: this.props.program.name }
             this.props.dispatch(actionStop)
@@ -142,8 +143,8 @@ class PlaylistContainer extends React.Component {
                                     navigation={this.props.navigation}
                                     client={client}
                                     brightness={this.state.brightness}
-                                    playlist={item} 
-                                    programsInPlaylist={this.state.playlistsList[item]} />)}
+                                    playlist={item}
+                                    programsInPlaylist={this.props.playlistsGlobalList[item]} />)}
                         />
                     </View>
                     <View style={styles.slider}>
@@ -219,7 +220,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => {
     return {
-        runningProgram: state.runningProgram
+        runningProgram: state.runningProgram,
+        playlistsGlobalList: state.playlistsGlobalList
     }
 }
 

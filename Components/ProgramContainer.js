@@ -1,13 +1,13 @@
 // Components/ProgramContainer.js
 
 import React from 'react';
-import { Button, StyleSheet, View, TouchableOpacity, Text, FlatList, RefreshControl } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, FlatList, RefreshControl } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { connect } from 'react-redux';
 import Slider from '@react-native-community/slider';
 import ProgramItem from './ProgramItem'
 import axios from 'axios';
-import exampleList from '../Helpers/ExampleList';
+
 
 const client = axios.create({
     baseURL: 'http://192.168.1.29:8080',
@@ -18,9 +18,10 @@ class ProgramContainer extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
+            playlistsList: [],
             programsList: [],
             brightness: 100,
-            refreshingData:true
+            refreshingData: true
         }
     }
 
@@ -76,14 +77,12 @@ class ProgramContainer extends React.Component {
 
     _loadProgramsList() {
         this.setState({
-            refreshingData:false
+            refreshingData: false
         })
-        const update_programs = { type: "UPDATE_PROGRAMS", value: this.state.programsList }
-        this.props.dispatch(update_programs)
         return client.get('/programs').then((response) => response.data).then((data) => {
             this.setState({
                 programsList: data,
-                refreshingData:false
+                refreshingData: false
             })
             Toast.show({
                 type: 'success',
@@ -105,13 +104,50 @@ class ProgramContainer extends React.Component {
                 text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
             });
             this.setState({
-                refreshingData:false
+                refreshingData: false
             })
         })
     }
 
-    componentDidMount() {
+    _loadPlaylistsList = () => {
+        return client.get('/playlists').then((response) => response.data).then((data) => {
+            this.setState({
+                playlistsList: data,
+                refreshingData: false
+            })
+            Toast.show({
+                type: 'success',
+                visibilityTime: 1000,
+                autoHide: true,
+                position: 'bottom',
+                text1: 'Chargement des playlists effectué'
+            });
+            const update_playlists = { type: "UPDATE_PLAYLISTS", value: this.state.playlistsList }
+            this.props.dispatch(update_playlists)
+        }).catch((error) => {
+            Toast.show({
+                type: 'error',
+                visibilityTime: 3000,
+                autoHide: true,
+                position: 'bottom',
+                text1: 'Erreur : pas de réponse du serveur',
+                text2: 'Veuillez vérifier que vous êtes bien connecté au Wifi du 4K'
+            });
+            this.setState({
+                refreshingData: false
+            })
+            const actionStop = { type: "STOP_PROGRAM", value: this.props.program.name }
+            this.props.dispatch(actionStop)
+        })
+    }
+
+    _refreshFunction = () => {
         this._loadProgramsList()
+        this._loadPlaylistsList()
+    }
+
+    componentDidMount() {
+        this._refreshFunction()
     }
 
     render() {
@@ -133,10 +169,9 @@ class ProgramContainer extends React.Component {
                     <View style={styles.programlist_container}>
                         < FlatList style={styles.list_container}
                             data={this.state.programsList}
-                            refreshControl={<RefreshControl refreshing={this.state.refreshingData} onRefresh={()=>{this._loadProgramsList()}} />}
+                            refreshControl={<RefreshControl refreshing={this.state.refreshingData} onRefresh={() => { this._refreshFunction() }} />}
                             keyExtractor={(item, index) => 'key' + index}
-                            renderItem={({ item }) => (<ProgramItem client={client} brightness={this.state.brightness} program={item}
-                                onRefresh={() => this._loadProgramsList()} />)}
+                            renderItem={({ item }) => (<ProgramItem client={client} brightness={this.state.brightness} program={item} refreshFunction={this._refreshFunction} navigation={this.props.navigation} playlists={this.state.playlistsList} />)}
                         />
                     </View>
                     <View style={styles.slider}>
@@ -162,7 +197,7 @@ const styles = StyleSheet.create({
     },
     programlist_container: {
         flex: 10,
-        marginTop:10,
+        marginTop: 10,
         backgroundColor: '#fff'
     },
     top_buttons: {
@@ -207,7 +242,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (state) => {
     return {
         runningProgram: state.runningProgram,
-        programsGlobalList: state.programsGlobalList
+        programsGlobalList: state.programsGlobalList,
+        playlistsGlobalList: state.playlistsGlobalList
     }
 }
 
